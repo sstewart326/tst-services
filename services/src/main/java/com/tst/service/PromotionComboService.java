@@ -2,24 +2,60 @@ package com.tst.service;
 
 import com.tst.domain.Promotion;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+/**
+ *
+ */
 public class PromotionComboService {
 
-    public void combinablePromotions(String promotionCode) {
-
+    /**
+     *
+     *
+     * @param promotions
+     * @param promotionCode
+     * @return
+     */
+    public Set<SortedSet<String>> combinablePromotions(List<Promotion> promotions, String promotionCode) {
+        Map<String, Set<SortedSet<String>>> combinationsPerPromoCode = new HashMap<>();
+        Set<SortedSet<String>> allPromotions = allCombinablePromotions(promotions);
+        allPromotions.forEach(bundle -> {
+            bundle.forEach(promotion -> {
+                if (!combinationsPerPromoCode.containsKey(promotion)) {
+                    Set<SortedSet<String>> bundles = new HashSet<>();
+                    bundles.add(bundle);
+                    combinationsPerPromoCode.put(promotion, bundles);
+                } else {
+                    Set<SortedSet<String>> bundles = combinationsPerPromoCode.get(promotion);
+                    if(!bundles.contains(bundle)) {
+                        bundles.add(bundle);
+                    }
+                }
+            });
+        });
+        return combinationsPerPromoCode.get(promotionCode);
     }
 
-    public void allCombinablePromotions(List<Promotion> allPromotions) {
-        Map<String, Set<SortedSet<String>>> allPossibleCombinations = new HashMap<>();
-
+    /**
+     *
+     *
+     * @param allPromotions
+     * @return
+     */
+    public Set<SortedSet<String>> allCombinablePromotions(List<Promotion> allPromotions) {
+        //convert list to linkedlist for higher efficiency
         LinkedList<Promotion> promotions = new LinkedList<>();
         allPromotions.forEach(promotion -> promotions.add(promotion));
 
+        Set<SortedSet<String>> promotionalBundles = new HashSet<>();
         for (int i = 0; i < promotions.size(); i++) {
-            Set<SortedSet<String>> promotionalBundles = new HashSet<>();
-            Promotion promotion = promotions.getFirst();
-
             SortedSet<String> currentPromotionBundles = null;
             Set<String> notCombinableWith = null;
             for(int k=1; k<promotions.size(); k++) {
@@ -37,23 +73,28 @@ public class PromotionComboService {
 
                     if (currentPromotionBundles.size() > 1 && !promotionalBundles.contains(currentPromotionBundles)) {
                         promotionalBundles.add(currentPromotionBundles);
-                        //need to create new obj so we don't overwrite and so we don't have to loop through already iterated elements
-                        SortedSet<String> temp = new TreeSet<>();
-                        temp.addAll(currentPromotionBundles);
-                        currentPromotionBundles = new TreeSet<>();
-                        currentPromotionBundles.addAll(temp);
+                        //need to create new obj so we don't overwrite existing bundles and so we don't have to loop through already iterated elements
+                        currentPromotionBundles = createNewPromotionalBundles(currentPromotionBundles);
                     }
                 }
                 notCombinableWith.clear();
+                //switch index 1 to tail so we can get all combinations for element at head
                 switchToTail(1, promotions);
                 currentPromotionBundles = null;
                 notCombinableWith.clear();
             }
+            //got all combinations of head, now we switch head to tail
             switchHeadToTail(promotions);
-            allPossibleCombinations.put(promotion.getCode(), promotionalBundles);
         }
-        System.out.println(allPossibleCombinations);
-        //have a list of not possible combos
+        return promotionalBundles;        //have a list of not possible combos
+    }
+
+    private SortedSet<String> createNewPromotionalBundles(SortedSet<String> currentPromotionBundles) {
+        SortedSet<String> temp = new TreeSet<>();
+        temp.addAll(currentPromotionBundles);
+        currentPromotionBundles = new TreeSet<>();
+        currentPromotionBundles.addAll(temp);
+        return currentPromotionBundles;
     }
 
     private boolean isCombinable(Set<String> notCombinableWith, String notCombinable) {
@@ -74,7 +115,4 @@ public class PromotionComboService {
         promotions.addLast(first);
     }
 
-    private void addNotCombinables(Set<String> notCombinableWith, Promotion promotion) {
-        notCombinableWith.addAll(promotion.getNotCombinableWith());
-    }
 }

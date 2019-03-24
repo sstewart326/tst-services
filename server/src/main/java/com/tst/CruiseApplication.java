@@ -24,6 +24,7 @@ public class CruiseApplication {
         SpringApplication.run(CruiseApplication.class, args);
         bestGroupPriceService.getBestGroupPrices( getCurrentRates(), getCurrentCabinPrices() );
         promotionComboService.allCombinablePromotions(getAllPromotions());
+        promotionComboService.combinablePromotions(getAllPromotions(), "P1");
     }
 
     private static List<Promotion> getAllPromotions() {
