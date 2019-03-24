@@ -72,7 +72,7 @@ public class PromotionComboServiceTest {
         return promoCombo;
     }
 
-    private static List<Promotion> getAllPromotions() {
+    private List<Promotion> getAllPromotions() {
         Promotion p1 = new Promotion("P1", mapNotCombinableWith("P3"));
         Promotion p2 = new Promotion("P2", mapNotCombinableWith("P4", "P5"));
         Promotion p3 = new Promotion("P3", mapNotCombinableWith("P1"));
@@ -87,7 +87,7 @@ public class PromotionComboServiceTest {
         return promotions;
     }
 
-    private static Set<String> mapNotCombinableWith(String... notCombinableWith) {
+    private Set<String> mapNotCombinableWith(String... notCombinableWith) {
         Set<String> notCombinableWithSet = new HashSet<>();
         for (String s : notCombinableWith) {
             notCombinableWithSet.add(s);

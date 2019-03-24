@@ -1,24 +1,58 @@
 package com.tst.service;
 
 import com.tst.domain.CabinPrice;
+import com.tst.domain.GroupPrice;
 import com.tst.domain.Rate;
+import org.junit.Test;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class BestGroupPriceServiceTest {
 
     BestGroupPriceService service = new BestGroupPriceService();
 
+    @Test
     public void givenCurrentRatesAndCurrentCabinPrices_whenGetBestGroupPrices_thenReceiveOrderedListOfBestPrices() {
-        service.getBestGroupPrices( getCurrentRates(), getCurrentCabinPrices() );
-
+        List<GroupPrice> bestPrices = service.getBestGroupPrices(getCurrentRates(), getCurrentCabinPrices());
+        BigDecimal previous = null;
+        for (GroupPrice groupPrice : bestPrices) {
+            if (previous == null) {
+                previous = groupPrice.getPrice();
+            } else {
+                assertTrue(previous.compareTo(groupPrice.getPrice()) == -1);
+                previous = groupPrice.getPrice();
+            }
+        }
     }
 
-    private static List<Rate> getCurrentRates() {
+    @Test
+    public void givenEmptyRates_whenGetBestGroupPrices_thenReceiveEmptyList() {
+        List<GroupPrice> bestPrices = service.getBestGroupPrices(Collections.emptyList(), getCurrentCabinPrices());
+        assertTrue(CollectionUtils.isEmpty(bestPrices));
+    }
+
+    @Test
+    public void givenEmptyCabinPrices_whenGetBestGroupPrices_thenReceiveEmptyList() {
+        List<GroupPrice> bestPrices = service.getBestGroupPrices(getCurrentRates(), Collections.emptyList());
+        assertTrue(CollectionUtils.isEmpty(bestPrices));
+    }
+
+    @Test
+    public void givenOneCabinPriceRateCodeIsNotFoundInRates_whenGetBestGroupPrices_thenIgnoreUnknownAndContinueProcessingOtherBestPrices() {
+        List<CabinPrice> cabinPrices = getCurrentCabinPrices();
+        CabinPrice cabinPrice = new CabinPrice("CA", "unkown_code", new BigDecimal(100));
+        cabinPrices.add(cabinPrice);
+        List<GroupPrice> bestPrices = service.getBestGroupPrices(getCurrentRates(), cabinPrices);
+        bestPrices.forEach(groupPrice -> assertTrue(groupPrice.getPrice().compareTo(cabinPrice.getPrice()) != 0));
+    }
+
+        private List<Rate> getCurrentRates() {
         Rate rate1 = new Rate("M1", "Military");
         Rate rate2 = new Rate("M2", "Military");
         Rate rate3 = new Rate("S1", "Senior");
@@ -31,7 +65,7 @@ public class BestGroupPriceServiceTest {
         return rates;
     }
 
-    private static List<CabinPrice> getCurrentCabinPrices() {
+    private List<CabinPrice> getCurrentCabinPrices() {
         CabinPrice price1 = new CabinPrice("CA", "M1", new BigDecimal(200));
         CabinPrice price2 = new CabinPrice("CA", "M2", new BigDecimal(250));
         CabinPrice price3 = new CabinPrice("CA", "S1", new BigDecimal(225));

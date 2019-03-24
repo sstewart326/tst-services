@@ -1,21 +1,37 @@
 package com.tst.service;
 
-import com.sun.istack.internal.NotNull;
 import com.tst.domain.CabinPrice;
 import com.tst.domain.GroupPrice;
 import com.tst.domain.Rate;
 import com.tst.service.utility.CabinPriceComparator;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+/**
+ *
+ *
+ */
 public class BestGroupPriceService {
 
-    public List<GroupPrice> getBestGroupPrices(@NotNull List<Rate> rates, @NotNull List<CabinPrice> prices) {
+    /**
+     *
+     *
+     * @param rates
+     * @param prices
+     * @return
+     */
+    public List<GroupPrice> getBestGroupPrices(List<Rate> rates, List<CabinPrice> prices) {
+        if(CollectionUtils.isEmpty(rates) || CollectionUtils.isEmpty(prices)) {
+            return Collections.emptyList();
+        }
+
         Map<String, String> rateMap = new HashMap<>();
         rates.forEach(rate -> rateMap.put(rate.getRateCode(), rate.getRateGroup()));
 
@@ -25,6 +41,9 @@ public class BestGroupPriceService {
         List<GroupPrice> bestGroupPrices = new ArrayList<>();
         sortedCabinPrices.forEach(cabinPrice -> {
             String rateGroup = rateMap.get(cabinPrice.getRateCode());
+            if (rateGroup == null) {
+                return;
+            }
             GroupPrice groupPrice = mapGroupPrice(cabinPrice, rateGroup);
             bestGroupPrices.add(groupPrice);
         });
