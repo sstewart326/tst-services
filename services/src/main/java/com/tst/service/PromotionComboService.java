@@ -1,7 +1,9 @@
 package com.tst.service;
 
 import com.tst.domain.Promotion;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,6 +26,10 @@ public class PromotionComboService {
      * @return
      */
     public Set<SortedSet<String>> combinablePromotions(List<Promotion> promotions, String promotionCode) {
+        if(CollectionUtils.isEmpty(promotions) || promotionCode == null) {
+            return Collections.emptySet();
+        }
+
         Map<String, Set<SortedSet<String>>> combinationsPerPromoCode = new HashMap<>();
         Set<SortedSet<String>> allPromotions = allCombinablePromotions(promotions);
         allPromotions.forEach(bundle -> {
@@ -50,6 +56,10 @@ public class PromotionComboService {
      * @return
      */
     public Set<SortedSet<String>> allCombinablePromotions(List<Promotion> allPromotions) {
+        if(CollectionUtils.isEmpty(allPromotions)) {
+            return Collections.emptySet();
+        }
+
         //convert list to linkedlist for higher efficiency
         LinkedList<Promotion> promotions = new LinkedList<>();
         allPromotions.forEach(promotion -> promotions.add(promotion));
@@ -61,7 +71,7 @@ public class PromotionComboService {
             for(int k=1; k<promotions.size(); k++) {
                 for (int j = 0; j < promotions.size(); j++) {
                     Promotion currentPromotion = promotions.get(j);
-                    if (!isCombinable(notCombinableWith, currentPromotion.getCode())) {
+                    if (currentPromotion==null || !isCombinable(notCombinableWith, currentPromotion.getCode())) {
                         continue;
                     }
                     if (currentPromotionBundles == null) {
