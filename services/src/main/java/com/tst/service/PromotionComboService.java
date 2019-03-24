@@ -2,37 +2,34 @@ package com.tst.service;
 
 import com.tst.domain.Promotion;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class PromotionComboService {
 
+    public void combinablePromotions(String promotionCode) {
+
+    }
+
     public void allCombinablePromotions(List<Promotion> allPromotions) {
-        Map<String, Set<List<String>>> allPossibleCombinations = new HashMap<>();
+        Map<String, Set<SortedSet<String>>> allPossibleCombinations = new HashMap<>();
 
         LinkedList<Promotion> promotions = new LinkedList<>();
         allPromotions.forEach(promotion -> promotions.add(promotion));
 
         for (int i = 0; i < promotions.size(); i++) {
-            Set<List<String>> promotionalBundles = new HashSet<>();
+            Set<SortedSet<String>> promotionalBundles = new HashSet<>();
             Promotion promotion = promotions.getFirst();
 
-            List<String> currentPromotionBundles = null;
+            SortedSet<String> currentPromotionBundles = null;
             Set<String> notCombinableWith = null;
             for(int k=1; k<promotions.size(); k++) {
-                for (int j = 0; j < promotions.size(); ) {
+                for (int j = 0; j < promotions.size(); j++) {
                     Promotion currentPromotion = promotions.get(j);
                     if (!isCombinable(notCombinableWith, currentPromotion.getCode())) {
-                        j++;
                         continue;
                     }
                     if (currentPromotionBundles == null) {
-                        currentPromotionBundles = new ArrayList<>();
+                        currentPromotionBundles = new TreeSet<>();
                         notCombinableWith = new HashSet<>();
                     }
                     currentPromotionBundles.add(currentPromotion.getCode());
@@ -40,13 +37,14 @@ public class PromotionComboService {
 
                     if (currentPromotionBundles.size() > 1 && !promotionalBundles.contains(currentPromotionBundles)) {
                         promotionalBundles.add(currentPromotionBundles);
-                        currentPromotionBundles = null;
-                        notCombinableWith.clear();
-                        j = 0;
-                        continue;
+                        //need to create new obj so we don't overwrite and so we don't have to loop through already iterated elements
+                        SortedSet<String> temp = new TreeSet<>();
+                        temp.addAll(currentPromotionBundles);
+                        currentPromotionBundles = new TreeSet<>();
+                        currentPromotionBundles.addAll(temp);
                     }
-                    j++;
                 }
+                notCombinableWith.clear();
                 switchToTail(1, promotions);
                 currentPromotionBundles = null;
                 notCombinableWith.clear();
