@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
  *  Service class to get all possible promotion combos and all combos per promo code
@@ -19,6 +20,8 @@ import java.util.TreeSet;
  * @author Shawn Stewart
  */
 public class PromotionComboService {
+
+    private static final Logger LOGGER = Logger.getLogger(PromotionComboService.class.getName());
 
     /**
      * Finds all promotion combos for a particular promotion code
@@ -35,8 +38,10 @@ public class PromotionComboService {
      */
     public Set<SortedSet<String>> combinablePromotions(List<Promotion> promotions, String promotionCode) {
         if(CollectionUtils.isEmpty(promotions) || promotionCode == null) {
+            LOGGER.warning("Promotion list and promotion code is required");
             return Collections.emptySet();
         }
+        LOGGER.info("Combining promotions for promo code " + promotionCode);
 
         Map<String, Set<SortedSet<String>>> combinationsPerPromoCode = new HashMap<>();
         Set<SortedSet<String>> allPromotions = allCombinablePromotions(promotions);
@@ -54,7 +59,11 @@ public class PromotionComboService {
                 }
             });
         });
-        return combinationsPerPromoCode.get(promotionCode);
+        Set<SortedSet<String>> combinations = combinationsPerPromoCode.get(promotionCode);
+        if(combinations != null) {
+            LOGGER.info("Found " + combinations.size() + " valid combinations for promocode " + promotionCode);
+        }
+        return combinations;
     }
 
     /**
@@ -72,8 +81,10 @@ public class PromotionComboService {
      */
     public Set<SortedSet<String>> allCombinablePromotions(List<Promotion> allPromotions) {
         if(CollectionUtils.isEmpty(allPromotions)) {
+            LOGGER.warning("Promotion list is required");
             return Collections.emptySet();
         }
+        LOGGER.info("Getting all combinations of valid promotions...");
 
         //convert list to linkedlist for higher efficiency
         LinkedList<Promotion> promotions = new LinkedList<>();
@@ -114,6 +125,7 @@ public class PromotionComboService {
             //got all combinations of head, now we switch head to tail
             switchHeadToTail(promotions);
         }
+        LOGGER.info("Found " + allPromotionCombos.size() + " number of promotion combos");
         return allPromotionCombos;        //have a list of not possible combos
     }
 

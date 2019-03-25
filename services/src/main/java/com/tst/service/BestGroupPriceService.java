@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
  *  Service class to get best group prices
@@ -20,6 +21,8 @@ import java.util.TreeSet;
  * @author Shawn Stewart
  */
 public class BestGroupPriceService {
+
+    private static final Logger LOGGER = Logger.getLogger(BestGroupPriceService.class.getName());
 
     /**
      * Gets list of best group prices
@@ -35,12 +38,14 @@ public class BestGroupPriceService {
      */
     public List<GroupPrice> getBestGroupPrices(List<Rate> rates, List<CabinPrice> prices) {
         if(CollectionUtils.isEmpty(rates) || CollectionUtils.isEmpty(prices)) {
+            LOGGER.warning("Rate and price list is required");
             return Collections.emptyList();
         }
 
         Map<String, String> rateMap = new HashMap<>();
         rates.forEach(rate -> {
             if (rate == null) {
+                LOGGER.warning("Rate was null. Ignoring");
                 return;
             }
             rateMap.put(rate.getRateCode(), rate.getRateGroup());
@@ -49,6 +54,7 @@ public class BestGroupPriceService {
         SortedSet<CabinPrice> sortedCabinPrices = new TreeSet<>(new CabinPriceComparator());
         prices.forEach(cabinPrice -> {
             if (cabinPrice == null) {
+                LOGGER.warning("CabinPrice was null. Ignoring");
                 return;
             }
             sortedCabinPrices.add(cabinPrice);
@@ -58,6 +64,7 @@ public class BestGroupPriceService {
         sortedCabinPrices.forEach(cabinPrice -> {
             String rateGroup = rateMap.get(cabinPrice.getRateCode());
             if (rateGroup == null) {
+                LOGGER.warning("RateGroup was null. Ignoring");
                 return;
             }
             GroupPrice groupPrice = mapGroupPrice(cabinPrice, rateGroup);

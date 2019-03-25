@@ -30,18 +30,22 @@ public class CruiseApplication {
         SpringApplication.run(CruiseApplication.class, args);
 
         List<GroupPrice> bestPrices = bestGroupPriceService.getBestGroupPrices(getCurrentRates(), getCurrentCabinPrices());
+        System.out.println("=======================================================================");
         System.out.println("Best Group Prices:");
         bestPrices.forEach(groupPrice -> System.out.println(groupPrice.toString()));
-        System.out.println();
+        System.out.println("=======================================================================\n\n\n\n");
 
         Set<SortedSet<String>> allCombinablePromotions = promotionComboService.allCombinablePromotions(getAllPromotions());
+        System.out.println("=======================================================================");
         System.out.println("All Combinable Promotions:");
         allCombinablePromotions.forEach(combinablePromos -> System.out.println(combinablePromos.toString()));
-        System.out.println();
+        System.out.println("=======================================================================\n\n\n\n");
 
         Set<SortedSet<String>> combinablePromotionsForP1 = promotionComboService.combinablePromotions(getAllPromotions(), "P1");
+        System.out.println("=======================================================================");
         System.out.println("All Combinable Promotions for P1");
         combinablePromotionsForP1.forEach(combinablePromos -> System.out.println(combinablePromos));
+        System.out.println("=======================================================================\n\n\n\n");
     }
 
     private static List<Promotion> getAllPromotions() {
