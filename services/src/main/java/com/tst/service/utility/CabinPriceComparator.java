@@ -5,6 +5,10 @@ import com.tst.domain.CabinPrice;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
+/**
+ *
+ * @author Shawn Stewart
+ */
 public class CabinPriceComparator implements Comparator<CabinPrice> {
 
     @Override

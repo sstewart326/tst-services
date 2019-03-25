@@ -1,6 +1,7 @@
 package com.tst;
 
 import com.tst.domain.CabinPrice;
+import com.tst.domain.GroupPrice;
 import com.tst.domain.Promotion;
 import com.tst.domain.Rate;
 import com.tst.service.BestGroupPriceService;
@@ -12,6 +13,11 @@ import org.springframework.context.annotation.ComponentScan;
 import java.math.BigDecimal;
 import java.util.*;
 
+/**
+ * Main entry point into application
+ *
+ * @author Shawn Stewart
+ */
 @SpringBootApplication
 @ComponentScan("com.tst")
 public class CruiseApplication {
@@ -22,9 +28,20 @@ public class CruiseApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(CruiseApplication.class, args);
-        bestGroupPriceService.getBestGroupPrices( getCurrentRates(), getCurrentCabinPrices() );
-        promotionComboService.allCombinablePromotions(getAllPromotions());
-        promotionComboService.combinablePromotions(getAllPromotions(), "P1");
+
+        List<GroupPrice> bestPrices = bestGroupPriceService.getBestGroupPrices(getCurrentRates(), getCurrentCabinPrices());
+        System.out.println("Best Group Prices:");
+        bestPrices.forEach(groupPrice -> System.out.println(groupPrice.toString()));
+        System.out.println();
+
+        Set<SortedSet<String>> allCombinablePromotions = promotionComboService.allCombinablePromotions(getAllPromotions());
+        System.out.println("All Combinable Promotions:");
+        allCombinablePromotions.forEach(combinablePromos -> System.out.println(combinablePromos.toString()));
+        System.out.println();
+
+        Set<SortedSet<String>> combinablePromotionsForP1 = promotionComboService.combinablePromotions(getAllPromotions(), "P1");
+        System.out.println("All Combinable Promotions for P1");
+        combinablePromotionsForP1.forEach(combinablePromos -> System.out.println(combinablePromos));
     }
 
     private static List<Promotion> getAllPromotions() {

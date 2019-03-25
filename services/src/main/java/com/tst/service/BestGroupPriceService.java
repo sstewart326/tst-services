@@ -15,13 +15,19 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
+ *  Service class to get best group prices
  *
- *
+ * @author Shawn Stewart
  */
 public class BestGroupPriceService {
 
     /**
+     * Gets list of best group prices
      *
+     * Creates a HashMap for key value lookup with rateCode as key and rate group as value
+     * Sorts prices in order from smallest to largest
+     * Loops through sorted prices and generates list of GroupPrices
+     * Returns bestGroupPrices list
      *
      * @param rates
      * @param prices
@@ -33,10 +39,20 @@ public class BestGroupPriceService {
         }
 
         Map<String, String> rateMap = new HashMap<>();
-        rates.forEach(rate -> rateMap.put(rate.getRateCode(), rate.getRateGroup()));
+        rates.forEach(rate -> {
+            if (rate == null) {
+                return;
+            }
+            rateMap.put(rate.getRateCode(), rate.getRateGroup());
+        });
 
         SortedSet<CabinPrice> sortedCabinPrices = new TreeSet<>(new CabinPriceComparator());
-        prices.forEach(cabinPrice -> sortedCabinPrices.add(cabinPrice));
+        prices.forEach(cabinPrice -> {
+            if (cabinPrice == null) {
+                return;
+            }
+            sortedCabinPrices.add(cabinPrice);
+        });
 
         List<GroupPrice> bestGroupPrices = new ArrayList<>();
         sortedCabinPrices.forEach(cabinPrice -> {

@@ -52,7 +52,29 @@ public class BestGroupPriceServiceTest {
         bestPrices.forEach(groupPrice -> assertTrue(groupPrice.getPrice().compareTo(cabinPrice.getPrice()) != 0));
     }
 
-        private List<Rate> getCurrentRates() {
+    @Test
+    public void givenOneCabinPriceIsNull_whenGetBestGroupPrices_thenIgnoreNullAndContinueProcessingOtherBestPrices() {
+        List<CabinPrice> cabinPrices = getCurrentCabinPrices();
+        List<GroupPrice> bestPrices = service.getBestGroupPrices(getCurrentRates(), cabinPrices);
+        int sizeOfListWithoutNullCabinPrice = bestPrices.size();
+
+        cabinPrices.add(null);
+        bestPrices = service.getBestGroupPrices(getCurrentRates(), cabinPrices);
+        assertTrue(bestPrices.size() == sizeOfListWithoutNullCabinPrice);
+    }
+
+    @Test
+    public void givenOneRateIsNull_whenGetBestGroupPrices_thenIgnoreNullAndContinueProcessingOtherBestPrices() {
+        List<Rate> rates = getCurrentRates();
+        List<GroupPrice> bestPrices = service.getBestGroupPrices(getCurrentRates(), getCurrentCabinPrices());
+        int sizeOfListWithoutNullCabinPrice = bestPrices.size();
+
+        rates.add(null);
+        bestPrices = service.getBestGroupPrices(rates, getCurrentCabinPrices());
+        assertTrue(bestPrices.size() == sizeOfListWithoutNullCabinPrice);
+    }
+
+    private List<Rate> getCurrentRates() {
         Rate rate1 = new Rate("M1", "Military");
         Rate rate2 = new Rate("M2", "Military");
         Rate rate3 = new Rate("S1", "Senior");

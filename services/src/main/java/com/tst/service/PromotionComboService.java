@@ -14,12 +14,20 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
+ *  Service class to get all possible promotion combos and all combos per promo code
  *
+ * @author Shawn Stewart
  */
 public class PromotionComboService {
 
     /**
+     * Finds all promotion combos for a particular promotion code
      *
+     * First calls allCombinablePromotions() to get all promo codes.
+     * Then loops through promotion combos
+     * Then loops through each promotion
+     * For each promotion, add promotion combo to HashMap with promotion code as key
+     * Lastly, lookup bundle in map by promotion code and return
      *
      * @param promotions
      * @param promotionCode
@@ -50,7 +58,14 @@ public class PromotionComboService {
     }
 
     /**
+     * Finds all promotion code combinations
      *
+     * Loops through size of allPromotions
+     * Before going to next iteration, switches the head element to tail since at this point we found all combos of head
+     *   Loops index 1 through end of list
+     *   Before going to next iteration, switches index 1 to tail since we are finding all combinations for element at index 0
+     *      Loops size of allPromotions to get combinations with head of list
+     * returns all possible promotion combos
      *
      * @param allPromotions
      * @return
@@ -64,39 +79,42 @@ public class PromotionComboService {
         LinkedList<Promotion> promotions = new LinkedList<>();
         allPromotions.forEach(promotion -> promotions.add(promotion));
 
-        Set<SortedSet<String>> promotionalBundles = new HashSet<>();
+        Set<SortedSet<String>> allPromotionCombos = new HashSet<>();
+        //loop through all promotions. start at 0 index. once all combos, are found for that index, move element to tail
         for (int i = 0; i < promotions.size(); i++) {
-            SortedSet<String> currentPromotionBundles = null;
+            SortedSet<String> currentPromotionCombo = null;
             Set<String> notCombinableWith = null;
-            for(int k=1; k<promotions.size(); k++) {
-                for (int j = 0; j < promotions.size(); j++) {
-                    Promotion currentPromotion = promotions.get(j);
+            //loop to move element at index 1 to tail so that we are able to get all possible combinations after loop below finishes
+            for(int j=1; j<promotions.size(); j++) {
+                //loop to get combinations with element at head of list with elements following
+                for (int k = 0; k < promotions.size(); k++) {
+                    Promotion currentPromotion = promotions.get(k);
                     if (currentPromotion==null || !isCombinable(notCombinableWith, currentPromotion.getCode())) {
                         continue;
                     }
-                    if (currentPromotionBundles == null) {
-                        currentPromotionBundles = new TreeSet<>();
+                    if (currentPromotionCombo == null) {
+                        currentPromotionCombo = new TreeSet<>();
                         notCombinableWith = new HashSet<>();
                     }
-                    currentPromotionBundles.add(currentPromotion.getCode());
+                    currentPromotionCombo.add(currentPromotion.getCode());
                     notCombinableWith.addAll(currentPromotion.getNotCombinableWith());
 
-                    if (currentPromotionBundles.size() > 1 && !promotionalBundles.contains(currentPromotionBundles)) {
-                        promotionalBundles.add(currentPromotionBundles);
+                    if (currentPromotionCombo.size() > 1 && !allPromotionCombos.contains(currentPromotionCombo)) {
+                        allPromotionCombos.add(currentPromotionCombo);
                         //need to create new obj so we don't overwrite existing bundles and so we don't have to loop through already iterated elements
-                        currentPromotionBundles = createNewPromotionalBundles(currentPromotionBundles);
+                        currentPromotionCombo = createNewPromotionalBundles(currentPromotionCombo);
                     }
                 }
                 notCombinableWith.clear();
-                //switch index 1 to tail so we can get all combinations for element at head
+                //switch element at index 1 to tail so we can get all combinations for element at head
                 switchToTail(1, promotions);
-                currentPromotionBundles = null;
+                currentPromotionCombo = null;
                 notCombinableWith.clear();
             }
             //got all combinations of head, now we switch head to tail
             switchHeadToTail(promotions);
         }
-        return promotionalBundles;        //have a list of not possible combos
+        return allPromotionCombos;        //have a list of not possible combos
     }
 
     private SortedSet<String> createNewPromotionalBundles(SortedSet<String> currentPromotionBundles) {
