@@ -1,6 +1,7 @@
 # tst-services
 
 ## How to Build:
+Java Version: 11
 ```
 mvn clean install
 ```
